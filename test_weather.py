@@ -1,4 +1,3 @@
-import traceback
 from datetime import datetime
 from datetime import timedelta
 import requests
@@ -78,5 +77,4 @@ try:
 
 
 except Exception as e:
-    print(traceback.format_exc())
     raise
