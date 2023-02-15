@@ -39,6 +39,7 @@ data = json.loads(response.text)
 
 # client and db 선언
 client = MongoClient(mongo_path)
+# Cluster0 -> weather collection
 db = client.Cluster0
 
 insert_list = []
@@ -51,7 +52,7 @@ for d in data["daily"]:
     max_temp = d["temp"]["max"]
 
     # Check if document with same date already exists
-    existing_doc = db.users.find_one({"date": date})
+    existing_doc = db.weather.find_one({"date": date})
     if existing_doc:
         print(f"Document with date {date} already exists. Skipping...")
         continue
@@ -71,10 +72,9 @@ for elem in insert_list:
 try:
     with client.start_session() as s:
         def cb(s):
-            db.users.insert_many(insert_list, session=s)
+            db.weather.insert_many(insert_list, session=s)
         s.with_transaction(cb)
     print('Insert Success')
-
 
 except Exception as e:
     raise
