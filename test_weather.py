@@ -44,12 +44,19 @@ db = client.Cluster0
 
 insert_list = []
 # incremental update
+
+# 습도 : d['humidity']
+# 날씨 상태 : d['weather'][0]['main'] => 라벨이 될 예정
+# 풍속 : d['wind_speed']
 for d in data["daily"]:
     temp_dict = dict()
     date = datetime.fromtimestamp(d["dt"]).strftime('%Y-%m-%d')
     temp = d["temp"]["day"]
     min_temp = d["temp"]["min"]
     max_temp = d["temp"]["max"]
+    humidity = d["humidity"]
+    weather_state = d['weather'][0]['main']
+    wind_speed = d['wind_speed']
 
     # Check if document with same date already exists
     existing_doc = db.weather.find_one({"date": date})
@@ -62,12 +69,20 @@ for d in data["daily"]:
         temp_dict["temp"] = temp
         temp_dict["min_temp"] = min_temp
         temp_dict["max_temp"] = max_temp
+        temp_dict["humidity"] = humidity
+        temp_dict["weather_state"] = weather_state
+        temp_dict["wind_speed"] = wind_speed
+
         insert_list.append(temp_dict)
         print(f"date {date} not exists, can insert")
 
 
 for elem in insert_list:
     print(elem)
+
+if not insert_list:
+    print("No new data to insert. Exiting...")
+    exit(0)
 
 try:
     with client.start_session() as s:
